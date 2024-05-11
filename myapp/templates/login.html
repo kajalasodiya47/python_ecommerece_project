@@ -1,0 +1,119 @@
+{% extends "header.html" %}
+{% load static %}
+{% block content %}
+<br>
+<br>
+<br>
+<head>
+    <style>
+        .error {
+            color: red;
+        }
+        
+    </style>
+<!-- Title page -->
+<section class="bg-img1 txt-center p-lr-15 p-tb-92" style="background-image: url('{% static 'images/bg-01.jpg'%}');">
+		<h2 class="ltext-105 cl0 txt-center">
+			Login
+		</h2>
+</section>	
+
+<!-- Content page -->
+<script>
+    function myFunction() {
+        var x = document.getElementById("password");
+        if (x.type === "password") {
+          x.type = "text";
+        } else {
+          x.type = "password";
+        }
+      }
+</script>
+</head>
+<!-- Content page -->
+<section class="bg0 p-t-104 p-b-116" >
+    <div class="container" >
+        <div class="flex-w flex-tr justify-content-center">
+            <div class="size-210 bor10 p-lr-70 p-t-55 p-b-70 p-lr-15-lg w-full-md">
+                {% if msg %}
+                <div class="alert alert-success" role="alert">
+                    {{msg}}
+                </div>
+                {% elif msg1 %}
+                <div class="alert alert-danger" role="alert">
+                    {{msg1}}
+                </div>
+                {% endif %}
+                <form method="post" action="{% url 'login' %}" onsubmit="return validateloginForm()">
+                    {% csrf_token %}
+                    <h4 class="mtext-105 cl2 txt-center p-b-30">
+                        Login
+                    </h4>
+
+                    <div class="bor8 m-b-20 how-pos4-parent">
+                        <input class="stext-111 cl2 plh3 size-116 p-l-62 p-r-30" type="email" name="email" id="email" placeholder="Enter Email">
+                    </div>
+                    <span id="emailError" class="error"></span>
+
+                    <div class="bor8 m-b-20 how-pos4-parent">
+                        <input class="stext-111 cl2 plh3 size-116 p-l-62 p-r-30" type="password" id="password" name="password" placeholder="Enter Password">
+                    </div>
+                    <span id="passwordError" class="error"></span><br>
+                    
+        
+                    <a onclick="myFunction()"><i class="fa fa-eye" style="margin-right:10px;" aria-hidden="true"></i>Show password</a>
+                     
+                    <div class="mtext-105 cl2 txt-center p-b-30">
+                        <a href="{% url 'fpass_email' %}" style = "color:black">Forgot Password</a> 
+                    </div>   
+                    <br>
+                    <button class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer" type="submit">
+                        Login
+                    </button>
+                </form>
+                <script>
+                    function validateloginForm() {
+                        var email = document.getElementById("email").value;
+                        var password = document.getElementById("password").value;
+                    
+                        var emailError = document.getElementById("emailError");
+                        var passwordError = document.getElementById("passwordError");
+                       
+                        var isValid = true;
+                    
+                        // Validate email
+                        if (email === "") {
+                            emailError.textContent = "Email is required";
+                            isValid = false;
+                        } else {
+                            var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            if (!emailPattern.test(email)) {
+                                emailError.textContent = "Invalid email format";
+                                isValid = false;
+                            } else {
+                                emailError.textContent = "";
+                            }
+                        }
+                    
+                        // Validate password
+                        if (password === "") {
+                            passwordError.textContent = "Password is required";
+                            isValid = false;
+                        } else {
+                            if (password.length < 8) {
+                                passwordError.textContent = "Password must be at least 8 characters long";
+                                isValid = false;
+                            } else {
+                                passwordError.textContent = "";
+                            }
+                        }
+                    
+                       
+                        return isValid;
+                    }
+                    </script>
+                    
+            </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends 'header.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>jQuery Example</title>
+		<!-- Include jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	</head>	
+
+<body class="animsition">
+	<br><br><br><br>
+	
+	
+	<!-- breadcrumb -->
+	<div class="container">
+		<div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+			<a href="index.html" class="stext-109 cl8 hov-cl1 trans-04">
+				Home
+				<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+			</a>
+
+			<span class="stext-109 cl4">
+				Shoping Cart
+                <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+                Review
+			</span>
+		</div>
+	</div>
+	
+	<!-- Content page -->
+	<section class="bg0 p-t-104 p-b-116">
+		<div class="container">
+			<h2>
+				Order Amount : {{total_pr}}
+			</h2>	
+			<button type="button" id="rzp-button1" class="btn btn-success payWithRazorpay">Proceed To Pay</button>
+            <br><br>
+			<div class="flex-w flex-tr">
+				<div class="size-210 bor10 p-lr-70 p-t-55 p-b-70 p-lr-15-lg w-full-md">
+					
+						<h4 class="mtext-105 cl2 txt-center p-b-30">
+							Order Details
+						</h4>
+
+						
+                        <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col" style="color:black;font-weight:bold;">Product Name</th>
+                                <th scope="col" style="color:black;font-weight:bold;">Product Quantity</th>
+                                <th scope="col" style="color:black;font-weight:bold;">Product Price</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for i in cart %}  
+                              <tr>
+                                <th scope="row">{{i.product.pname}}</th>
+                                <td>{{i.product_qty}}</td>
+                                <td>{{i.product.price}}</td>
+                                </tr>
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                           
+                          <p class="stext-115 cl1 size-213 p-t-18">
+                           Sub Total : {{request.session.net_price}}
+                          </p>	
+						  <p class="stext-115 cl1 size-213 p-t-18">
+							Shipping: {{ship}}
+						   </p>
+						  <p class="stext-115 cl1 size-213 p-t-18">
+							 Total : {{total_pr}}
+						   </p>	
+					
+				</div>
+
+				<div class="size-210 bor10 flex-w flex-col-m p-lr-93 p-tb-30 p-lr-15-lg w-full-md">
+                    <h4 class="mtext-105 cl2 txt-center p-b-30">
+                        Address Details
+                    </h4>
+
+					<div class="flex-w w-full p-b-42">
+						
+
+						<div class="size-212 p-t-2">
+							<span class="mtext-110 cl2">
+								Address
+							</span>
+
+							<p class="stext-115 cl6 size-213 p-t-18">
+								{{order.address}}
+							</p>
+						</div>
+					</div>
+
+					<div class="flex-w w-full p-b-42">
+						
+
+						<div class="size-212 p-t-2">
+							<span class="mtext-110 cl2">
+								City
+							</span>
+
+							<p class="stext-115 cl1 size-213 p-t-18">
+								{{order.city}}
+							</p>
+						</div>
+					</div>
+
+					<div class="flex-w w-full">
+						
+
+						<div class="size-212 p-t-2">
+							<span class="mtext-110 cl2">
+								Pincode
+							</span>
+
+							<p class="stext-115 cl1 size-213 p-t-18">
+								{{order.pincode}}
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+            <br>
+            <a href="{% url 'cart'%}"><button type="button" class="btn btn-primary">Go Back to cart</button></a>
+		</div>
+        
+	</section>		
+    
+	
+</body>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+	$(document).ready( function() {
+		$('.payWithRazorpay').click(function (e) {
+			e.preventDefault();
+			$.ajax({
+				method: "GET",
+				url: "/proceed-to-pay",
+				success: function (response){
+					var options = {
+						"key": "rzp_test_BdeZB4egXC7T07", // Enter the Key ID generated from the Dashboard
+						"amount": response.total_pr * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+						"currency": "INR",
+						"name": "Cozastore", //your business name
+						"description": "Thank you for buying from us",
+						"image": "https://example.com/your_logo",
+						//"order_id": "order_9A33XWu170gUtm", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+						"handler": function (response){
+							window.location.href=`http://localhost:8000/success?razorpay_payment_id=${response.razorpay_payment_id}`
+                
+							
+						},
+						//"prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+						//	"name": "Gaurav Kumar", //your customer's name
+						//	"email": "gaurav.kumar@example.com", 
+						//	"contact": "9000090000"  //Provide the customer's phone number for better conversion rates 
+						//},
+						
+						"theme": {
+							"color": "#3399cc"
+						}
+					};
+					var rzp1 = new Razorpay(options);
+					rzp1.on('payment.failed', function (response){
+						alert(response.error.code);
+						alert(response.error.description);
+						alert(response.error.source);
+						alert(response.error.step);
+						alert(response.error.reason);
+						alert(response.error.metadata.order_id);
+						alert(response.error.metadata.payment_id);
+				});
+					rzp1.open();
+				}
+			});
+			
+			
+		});
+	});
+</script>	
+</html>
+{% endblock %}
